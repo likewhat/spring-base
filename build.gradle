@@ -1,0 +1,86 @@
+buildscript {
+    ext {
+        springBootVersion = '1.5.3.RELEASE'
+    }
+    repositories {
+        maven { url "http://repo.maven.apache.org/maven2" }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath('se.transmode.gradle:gradle-docker:1.2')
+    }
+}
+
+group = 'likely'
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'docker'
+
+task buildDocker(type: Docker, dependsOn: build) {
+    push = true
+    applicationName = jar.baseName
+    dockerfile = file('src/main/docker/Dockerfile')
+    doFirst {
+        copy {
+            from jar
+            into stageDir
+        }
+    }
+}
+
+jar {
+    baseName = 'spring-base'
+    version = '1.0.0'
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+
+repositories {
+    mavenCentral()
+}
+
+
+dependencies {
+    compile('org.springframework.boot:spring-boot-starter-data-jpa')
+
+    compile('org.springframework.boot:spring-boot-starter-mail')
+
+    compile group: 'mysql', name: 'mysql-connector-java', version: '6.0.5'
+
+    compile('org.apache.tomcat.embed:tomcat-embed-jasper')
+
+    compile('joda-time:joda-time')
+
+//    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.9.0.pr1'
+////    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.1'
+//    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.0.pr1'
+
+    compile('org.springframework.boot:spring-boot-starter-security')
+    compile("org.springframework.boot:spring-boot-starter-web")
+
+//    compile('org.springframework.boot:spring-boot-starter-log4j')
+
+    compile('org.springframework.security:spring-security-taglibs')
+//    compile "org.projectlombok:lombok:1.16.14"
+
+//    compile("org.springframework.boot:spring-boot-starter-web") {
+//        exclude module: "spring-boot-starter-tomcat"
+//    }
+
+    // Seems like jetty doesn't support JSP: http://blog.csdn.net/qq_28394425/article/details/51263571
+//    compile("org.springframework.boot:spring-boot-starter-jetty")
+
+//    compile group: 'javax.servlet.jsp.jstl', name: 'jstl-api', version: '1.2'
+
+    // jstl must be 1.2!!!
+    compile('javax.servlet:jstl:1.2')
+
+    // jetty requires servlet 3+
+//    compile('javax.servlet:javax.servlet-api:3.1.0')
+
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+}
